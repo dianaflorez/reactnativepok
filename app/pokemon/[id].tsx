@@ -1,41 +1,37 @@
-import React, { useEffect, useState } from "react";
-import { View, Text, ActivityIndicator, StyleSheet, ScrollView } from "react-native";
-import { Stack, useLocalSearchParams, useRouter } from "expo-router";
+import React, { useEffect, useState, useLayoutEffect } from "react";
+import { View, Text, ActivityIndicator, StyleSheet, ScrollView, Button } from "react-native";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { getPokemonDetailsApi } from "@/api/pokemon";
 import Header from "@/components/Pokemon/Header";
 import Types from "@/components/Pokemon/Types";
 import Stats from "@/components/Pokemon/Stats";
-import { useNavigation } from '@react-navigation/native';
-import Icon from "react-native-vector-icons/FontAwesome5";
-import { Link } from "expo-router";
+import { useNavigation } from "@react-navigation/native";
 
 interface PokemonType {
-    id: number;
-    name: string;
-    order: number;
-    sprites: {
-        other: {
-            "official-artwork": {        
-                front_default: string;
-            }
-        }
+  id: number;
+  name: string;
+  order: number;
+  sprites: {
+    other: {
+      "official-artwork": {
+        front_default: string;
+      };
     };
-    types: { type: { name: string } }[];
-    stats: { base_stat: number; stat: { name: string } }[];
+  };
+  types: { type: { name: string } }[];
+  stats: { base_stat: number; stat: { name: string } }[];
 }
 
 export default function PokemonDesc() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
-
+  const navigation = useNavigation();
   const [pokemon, setPokemon] = useState<PokemonType | null>(null);
   const [loading, setLoading] = useState(true);
-
-  const navigation = useNavigation();
+  const [isFavorite, setIsFavorite] = useState(false);
 
   useEffect(() => {
     if (!id) return;
-
     const fetchPokemon = async () => {
       try {
         const response = await getPokemonDetailsApi(Number(id));
@@ -47,18 +43,35 @@ export default function PokemonDesc() {
         setLoading(false);
       }
     };
-
     fetchPokemon();
   }, [id]);
 
+  // 👇 Esto asegura que el botón se monte correctamente en Android
+  // useLayoutEffect(() => {
+  //   navigation.setOptions({
+  //     title: "",
+  //     headerStyle: { backgroundColor: "green" },
+  //     headerTintColor: "white",
+  //     headerLeft: () => (
+  //       <Button title="Volver" color="white" onPress={() => router.back()} />
+  //     ),
+  //     headerRight: () => (
+  //       <Button
+  //         title={isFavorite ? "Quitar" : "Favorito"}
+  //         onPress={() => {
+  //           console.log("Presionado favorito");
+  //           setIsFavorite((prev) => !prev);
+  //         }}
+  //         color={isFavorite ? "orange" : "white"}
+  //       />
+  //     ),
+  //   });
+  // }, [navigation, isFavorite]);
 
   if (loading) {
     return (
-
       <View style={styles.center}>
         <Text>Cargando...</Text>
-        <Text>Por favor, espera un momento.</Text>
-        <Text>Estamos obteniendo la información del Pokémon.</Text>
         <ActivityIndicator size="large" />
       </View>
     );
@@ -73,55 +86,23 @@ export default function PokemonDesc() {
   }
 
   return (
-    <>
-    <Stack.Screen
-            options={{
-            title: '',
-            headerStyle: { backgroundColor: 'green' },
-            headerTintColor: 'white',
-            headerLeft: () => (
-                <Icon
-                name="arrow-left"
-                size={24}
-                color="white"
-                style={{ marginLeft: 15 }}
-                onPress={() => {console.log('volver'); router.back()}}
-                />
-            ),
-            }}
-        />
     <ScrollView>
-        
-        <Header
-            name={pokemon?.name}
-            order={pokemon?.order}
-            image={pokemon?.sprites.other["official-artwork"].front_default}
-            type={pokemon?.types[0].type.name}
-        />
-        <Types types={pokemon?.types} />
-        <Stats stats={pokemon?.stats} />
+      <Header
+        name={pokemon.name}
+        order={pokemon.order}
+        image={pokemon.sprites.other["official-artwork"].front_default}
+        type={pokemon.types[0].type.name}
+      />
+      <Types types={pokemon.types} />
+      <Stats stats={pokemon.stats} />
     </ScrollView>
-    </>
-
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    padding: 20,
-    color: "#333",
-  },
   center: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    color: "#333",
-    backgroundColor: "#f0f0f0",
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 10,
-    color: "#333",
   },
 });

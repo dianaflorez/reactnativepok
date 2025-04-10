@@ -9,7 +9,7 @@ export default function Types(props: any) {
     
     return (
         <View style={styles.container}>
-           <Text >Types.....</Text>
+           <Text >Types</Text>
            {map(types, (item: any, index: number) => (
                 <View
                     key={index}

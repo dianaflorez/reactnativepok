@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { getPokemonsApi, getPokemonDetailsByUrlApi } from "@/api/pokemon";
 import PokemonList from "@/components/PokemonList";
 import { SafeAreaView, Text } from "react-native";
+import TestFavorite from "@/components/Pokemon/TestFavorite";
 
 export default function TabTwoScreen() {
   const [pokemons, setPokemons] = useState<any[]>([]);
@@ -132,16 +133,14 @@ export default function TabTwoScreen() {
     } catch (error) {
       console.error(error);
     }
-  };
-  
-  console.log('------poke-----',pokemons);
-  
+  };  
 
   return (
     <SafeAreaView>
       <Text>Pokemons List...</Text>
       <Text>Pokemons List...</Text>
       <Text>Pokemons List...</Text>
+      <TestFavorite />
       <PokemonList pokemons={pokemons} loadPokemons={loadPokemons} isNext={nextUrl} />
     </SafeAreaView>
   );
